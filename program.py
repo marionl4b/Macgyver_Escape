@@ -3,20 +3,17 @@
 
 import random
 
-##################################################
-#################### GRID SETUP ##################
-##################################################
-
-wall = "X"
-road = " "
-macGyver = "M"
-gateKeeper = "G"
-objects = ["1", "2", "3"]
+WALL = "X"
+ROAD = " "
+MAC_GYVER = "M"
+GATE_KEEPER = "G"
+OBJECTS = ["1", "2", "3"]
 
 def grid():
+    """ setup random labyrinth grid 15x15 """
     grid = " "
     for line in range(15):
-        line = [wall] * 7 + [road] * 8
+        line = [WALL] * 7 + [ROAD] * 8
         random.shuffle(line)
         line = " ".join(line)+"\n"
         grid += line
