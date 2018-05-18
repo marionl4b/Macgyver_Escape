@@ -27,12 +27,21 @@ def store_grid():
         file.write(stored_grid)
 
 
+def show_grid():
+
+    """ show the grid stored before """
+
+    with open(os.path.join(DIR_PATH, 'grid.txt'), 'r') as file:
+        show_grid = file.read()
+        return(show_grid)
+
+
 def main():
 
     """ Merlin : what's you're favorite colour ? Galaad : Blue, no Red, aaaaargh """
 
     store_grid()
-
+    print(show_grid())
 
 if __name__ == "__main__":
     main()
