@@ -29,7 +29,7 @@ class Labyrinth:
         """ setup and store random labyrinth grid 15x15 in grid.txt """
         init_grid = str()
         for line in range(15):
-            line = [WALL] * 5 + [ROAD] * 10
+            line = [WALL] * 4 + [ROAD] * 11
             random.shuffle(line)
             line = " ".join(line)+"\n"
             init_grid += line
@@ -49,7 +49,6 @@ class Labyrinth:
         """ show the grid loaded before """
         for line in self.grid:
             print(line, end='')
-        # print(self.grid)
 
     def player_move(self):
 
@@ -57,25 +56,28 @@ class Labyrinth:
 
         while True:
             direction = input("Déplacez MacGyver dans le Labyrinthe grace aux touches ZQSD:")
+
             if direction in DIRECTIONS:
-                if direction == "z":
-                    self.mg_pos -= 30  #move up
-                elif direction == "q":
-                    self.mg_pos -= 2  #move left
-                elif direction == "s":
-                    self.mg_pos += 30  #move right
-                elif direction == "d":
-                    self.mg_pos += 2  #move down
+                if direction == "z" and self.grid[self.mg_pos - 30] != WALL:
+                    self.mg_pos -= 30   # move up
+                elif direction == "q" and self.grid[self.mg_pos - 2] != WALL:
+                    self.mg_pos -= 2    # move left
+                elif direction == "s" and self.grid[self.mg_pos + 30] != WALL:
+                    self.mg_pos += 30   # move right
+                elif direction == "d" and self.grid[self.mg_pos + 2] != WALL:
+                    self.mg_pos += 2    # move down
+            if self.mg_pos == self.gk_pos:
+                print("Gagné!")
+                break
             else:
                 pass
-            #
             self.load_grid()
             self.show_grid()
 
 
 def main():
 
-    """ Merlin : what's you're favorite colour ? Galaad : Blue, no Red, aaaaargh """
+    """ Time to play : Merlin : what's you're favorite colour ? Galaad : Blue, no Red, aaaaargh """
 
     Labyrinth()
 
