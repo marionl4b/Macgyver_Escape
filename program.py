@@ -15,7 +15,7 @@ DIRECTIONS = ("z", "q", "s", "d")
 
 class Labyrinth:
     def __init__(self):
-        self.grid = []
+        self.grid = []  # positions lists transformed to dictionary ?
         self.grid_up_pos = []
         self.grid_down_pos = []
         self.grid_left_pos = []
@@ -32,6 +32,7 @@ class Labyrinth:
     def init_grid(self):
 
         """ setup and store random labyrinth grid 15x15 in grid.txt """
+
         init_grid = str()
         for line in range(15):
             line = [WALL] * 4 + [ROAD] * 11
@@ -42,6 +43,10 @@ class Labyrinth:
             file.write(init_grid)
 
     def load_grid(self):
+
+        """ load the grid, add MacGyver and Gate Keeper positioned, and return the limits of the grid"""
+
+        #  have to load objects
 
         with open(os.path.join(DIR_PATH, 'grid.txt'), 'r') as file:
             self.grid = list(file.read())
@@ -61,12 +66,16 @@ class Labyrinth:
     def show_grid(self):
 
         """ show the grid loaded before """
+
         for line in self.grid:
             print(line, end='')
 
     def player_move(self):
 
-        """take keyboard action and make MacGyver move on the grid"""
+        """take keyboard action and make MacGyver move inside the grid and avoid walls
+            for now victory detection is simply breaking the player move loop"""
+
+        #  have to detect if the grid's walls permit to win (MacGyver can move and access to objects and gate keeper)
 
         while True:  # while player move
             direction = input("Déplacez MacGyver dans le Labyrinthe grace aux touches ZQSD:")
@@ -81,7 +90,7 @@ class Labyrinth:
                     self.mg_pos += 30   # move right
                 elif direction == "d" and self.grid[self.mg_pos + 2] != WALL and self.mg_pos not in self.grid_right_pos:
                     self.mg_pos += 2    # move down
-            if self.mg_pos == self.gk_pos:
+            elif self.mg_pos == self.gk_pos:  # victory detection
                 print("Gagné!")
                 victory = True
                 break
@@ -89,12 +98,12 @@ class Labyrinth:
                 pass
             self.load_grid()
             self.show_grid()
-            print(self.mg_pos)
+            #  print(self.mg_pos)
 
 
 def main():
 
-    """ Time to play : Merlin : what's you're favorite colour ? Galaad : Blue, no Red, aaaaargh """
+    """ Time to play """
 
     Labyrinth()
 
