@@ -2,9 +2,7 @@
 # coding: utf-8
 
 import random
-import os
 
-DIR_PATH = os.path.dirname(os.path.abspath(__file__))  # return api directory
 WALL = "X"
 ROAD = " "
 MACGYVER = "M"
@@ -15,90 +13,104 @@ DIRECTIONS = ("z", "q", "s", "d")
 
 class Labyrinth:
     def __init__(self):
-        self.grid = []  # positions lists transformed to dictionary ?
-        self.grid_up_pos = []
-        self.grid_down_pos = []
-        self.grid_left_pos = []
-        self.grid_right_pos = []
-        self.mg_pos = 0
-        self.gk_pos = 250
+        self.grid = []
+        self.passage = True
+        self.mg_x = 0
+        self.mg_y = 2
+        self.gk_x = 0
+        self.gk_y = 0
 
-        self.init_grid()
         self.load_grid()
         self.show_grid()
-        self.player_move()
-
-
-    def init_grid(self):
-
-        """ setup and store random labyrinth grid 15x15 in grid.txt """
-
-        init_grid = str()
-        for line in range(15):
-            line = [WALL] * 4 + [ROAD] * 11
-            random.shuffle(line)
-            line = " ".join(line)+"\n"
-            init_grid += line
-        with open(os.path.join(DIR_PATH, 'grid.txt'), 'w') as file:
-            file.write(init_grid)
+        self.play_game()
 
     def load_grid(self):
 
-        """ load the grid, add MacGyver and Gate Keeper positioned, and return the limits of the grid"""
+        """ load the grid, add MacGyver and Gate Keeper positioned"""
 
         #  have to load objects
 
-        with open(os.path.join(DIR_PATH, 'grid.txt'), 'r') as file:
-            self.grid = list(file.read())
-            self.grid_up_pos = [i for i in range(0, 28, 2)]
-            self.grid_down_pos = [i for i in range(420, len(self.grid), 2)]
-            self.grid_left_pos = [i for i in range(0, len(self.grid), 30)]
-            self.grid_right_pos = [i for i in range(28, len(self.grid), 30)]
-            self.grid[self.mg_pos] = MACGYVER
-            self.grid[self.gk_pos] = GATE_KEEPER
+        with open('grid.txt', 'r') as file:
+            for line in file:
+                line = list(line)
+                line.pop(15)
+                if len(line) > 0:
+                    self.grid.append(line)
 
-        return self.grid_up_pos
-        return self.grid_down_pos
-        return self.grid_left_pos
-        return self.grid_right_pos
-        return self.grid
+            self.grid[self.mg_x][self.mg_y] = MACGYVER
+            self.grid[self.gk_x][self.gk_x] = GATE_KEEPER
 
     def show_grid(self):
 
         """ show the grid loaded before """
 
         for line in self.grid:
-            print(line, end='')
+            print("".join(line))
 
-    def player_move(self):
+    def check_free_pass(self, direction):
 
-        """take keyboard action and make MacGyver move inside the grid and avoid walls
-            for now victory detection is simply breaking the player move loop"""
+        """ compare direction with walls and grid limits, return clear or blocked passage for player_move()"""
 
-        #  have to detect if the grid's walls permit to win (MacGyver can move and access to objects and gate keeper)
+        if direction == "z" and self.grid[self.mg_x - 1][self.mg_y] == WALL or direction == "z" and self.mg_x == 0:
+            self.passage = False  # up passage is blocked
+        elif direction == "q" and self.grid[self.mg_x][self.mg_y - 1] == WALL or direction == "q" and self.mg_y == 0:
+            self.passage = False  # left passage is blocked
+        elif direction == "s" and self.grid[self.mg_x + 1][self.mg_y] == WALL or direction == "s" and self.mg_x == 14:
+            self.passage = False  # down passage is blocked
+        elif direction == "d" and self.grid[self.mg_x][self.mg_y + 1] == WALL or direction == "d" and self.mg_y == 14:
+            self.passage = False  # right passage is blocked
+        else:
+            self.passage = True  # all is clear
 
-        while True:  # while player move
-            direction = input("Déplacez MacGyver dans le Labyrinthe grace aux touches ZQSD:")
+    def player_move(self, direction):
 
-            if direction in DIRECTIONS:  # test input
-                if direction == "z" and self.grid[self.mg_pos - 30] != WALL and self.mg_pos not in self.grid_up_pos:
-                    self.mg_pos -= 30   # move up
-                elif direction == "q" and self.grid[self.mg_pos - 2] != WALL and self.mg_pos not in self.grid_left_pos:
-                    self.mg_pos -= 2    # move left
-                elif direction == "s" and self.grid[self.mg_pos + 30] != WALL \
-                        and self.mg_pos not in self.grid_down_pos_pos:
-                    self.mg_pos += 30   # move right
-                elif direction == "d" and self.grid[self.mg_pos + 2] != WALL and self.mg_pos not in self.grid_right_pos:
-                    self.mg_pos += 2    # move down
-            elif self.mg_pos == self.gk_pos:  # victory detection
-                print("Gagné!")
-                victory = True
-                break
+        """ check clear passage before moving MacGyver depending on direction into the grid """
+
+        self.check_free_pass(direction)
+        if self.passage is True:
+            if direction == "z":
+                self.grid[self.mg_x][self.mg_y] = ROAD
+                self.mg_x -= 1
+                self.grid[self.mg_x][self.mg_y] = MACGYVER  # move up
+            elif direction == "q":
+                self.grid[self.mg_x][self.mg_y] = ROAD
+                self.mg_y -= 1
+                self.grid[self.mg_x][self.mg_y] = MACGYVER  # move left
+            elif direction == "s":
+                self.grid[self.mg_x][self.mg_y] = ROAD
+                self.mg_x += 1
+                self.grid[self.mg_x][self.mg_y] = MACGYVER  # move down
+            elif direction == "d":
+                self.grid[self.mg_x][self.mg_y] = ROAD
+                self.mg_y += 1
+                self.grid[self.mg_x][self.mg_y] = MACGYVER  # move right
             else:
                 pass
-            self.load_grid()
+        print(self.mg_x, self.mg_y)
+        print(self.gk_x, self.gk_y)
+        print(direction)
+        print(self.passage)
+        self.end_game()
+
+    def end_game(self):
+
+        """ check MacGyver position to detect victory """
+
+        if self.mg_x == self.gk_x and self.mg_y == self.gk_y:
+            print("Gagné!")
+        else:
             self.show_grid()
-            #  print(self.mg_pos)
+
+    def play_game(self):
+
+        """ take keyboard action and store these in direction variable
+        and make MacGyver move inside the grid to find the Gate Keeper """
+
+        while True:
+            invite = input("Z,Q,S,D :")
+            direction = invite
+            if direction in DIRECTIONS:
+                self.player_move(direction)
 
 
 def main():
