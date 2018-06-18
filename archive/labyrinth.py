@@ -13,7 +13,6 @@ DIRECTIONS = ("z", "q", "s", "d")
 class Labyrinth:
     def __init__(self):
         self.grid = []
-        self.passage = True
         self.mg_x = 0
         self.mg_y = 2
         self.gk_x = 0
@@ -90,6 +89,10 @@ class Labyrinth:
             if self.object['x'] == x and self.object['y'] == y:
                 self.object['taken'] = True
                 return True
+            if self.object['taken'] is False:
+                self.game_over = True
+            else:
+                self.game_over = False
 
     def player_move(self, direction):
 
@@ -108,11 +111,6 @@ class Labyrinth:
 
         """ check MacGyver position to detect victory """
         if self.mg_x == self.gk_x and self.mg_y == self.gk_y:
-            for self.object in self.objects:
-                if self.object['taken'] is False:
-                    self.game_over = True
-                else:
-                    self.game_over = False
             if self.game_over is True:
                 print("Game Over!")
             else:
