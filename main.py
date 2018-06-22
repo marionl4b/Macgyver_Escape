@@ -16,43 +16,11 @@ class GameWrapper:
         self.clock = pygame.time.Clock()
         self.running = True
 
-        self.grid = []
-
-        # init classes and sprites of labyrinth_sprites.py
-        self.player = Player()
-        self.gk = GateKeeper()
-        self.obj = Objects()
-
-        self.all_sprites = pygame.sprite.Group()
-        self.all_sprites.add(self.player, self.gk)
-
-        self.load_map()
-
-    def load_map(self):
-        """ load the map file with walls"""
-
-        with open('map.txt', 'r') as file:
-            for row in file:
-                row = list(row)
-                self.grid.append(row)
-
-        # load the walls by cols and rows
-        for row, tiles in enumerate(self.grid):
-            for col, tile in enumerate(tiles):
-                if tile == 'X':
-                    t = Wall(col, row)
-                    self.all_sprites.add(t)
-
-    def show_grid(self):
-        """" show the grid """
-
-        for x in range(0, WIDTH, TILE_SIZE):
-            pygame.draw.line(self.screen, WHITE, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, TILE_SIZE):
-            pygame.draw.line(self.screen, WHITE, (0, y), (WIDTH, y))
+        # init functions of labyrinth
+        self.labyrinth = Labyrinth()
 
     def events(self):
-        """ init process input loop"""
+        """ init process input loop """
 
         self.clock.tick(FPS)
         for event in pygame.event.get():
@@ -60,24 +28,24 @@ class GameWrapper:
                 self.running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    self.player.move('up')
+                    self.labyrinth.move('up')
                 elif event.key == pygame.K_DOWN:
-                    self.player.move('down')
+                    self.labyrinth.move('down')
                 elif event.key == pygame.K_LEFT:
-                    self.player.move('left')
+                    self.labyrinth.move('left')
                 elif event.key == pygame.K_RIGHT:
-                    self.player.move('right')
+                    self.labyrinth.move('right')
 
     def update(self):
-        """ logic of the game, collisions"""
+        """ logic of the game, collisions """
         pass
 
     def draw(self):
-        """ render graphics"""
+        """ render graphics """
 
         self.screen.fill(GREEN)
-        self.all_sprites.draw(self.screen)
-        self.show_grid()
+        self.labyrinth.show_map()
+
         pygame.display.flip()
 
 
