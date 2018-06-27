@@ -1,24 +1,5 @@
-import pygame
 import random
 from settings import *
-from main import *
-
-
-def load_img(filename):
-    img = pygame.image.load(path.join(IMG_DIR, filename)).convert_alpha()
-    return img
-
-
-def load_snd(filename):
-    pass
-
-
-def draw_text(text, font, size, color, x, y):
-    font = pygame.font.Font(font, size)
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
-    SCREEN.blit(text_surface, text_rect)
 
 
 class Labyrinth:
@@ -30,9 +11,10 @@ class Labyrinth:
 
         self.walls_pos = []
         self.road_pos = []
-        self.obj = {}
         self.objects = []
+        self.inventory = 0
         self.load_map()
+        self.set_new_map()
 
     def load_map(self):
         """ load the map file and objects"""
@@ -53,14 +35,16 @@ class Labyrinth:
                     self.wall(col, row)
                     self.walls_pos.append(self.wall_rect)
 
-        # load objects randomly on road tile, MacGyver and the Gate Keeper
+    def set_new_map(self):
+        # load objects randomly on road tile then load MacGyver and the Gate Keeper
         self.objects = [self.object() for i in range(3)]
         i = -1
-        for self.obj in self.objects:
+        for obj in self.objects:
             i += 1
-            self.obj['img'] = load_img(OBJ_IMG_LIST[i])
+            obj['img'] = load_img(OBJ_IMG_LIST[i])
         self.macgyver()
         self.gate_keeper()
+        self.inventory = 0
 
     def show_map(self):
 
@@ -75,9 +59,9 @@ class Labyrinth:
                     self.road(col, row)
                     self.screen.blit(self.road_image, self.road_rect)
 
-        # show the 3 collectibles objects and MacGyver and the Gate Keeper
-        for self.obj in self.objects:
-            self.screen.blit(self.obj['img'], self.obj['rect'])
+        # show the 3 collectibles objects MacGyver and the Gate Keeper
+        for obj in self.objects:
+            self.screen.blit(obj['img'], obj['rect'])
         self.screen.blit(self.mg_image, self.mg_rect)
         self.screen.blit(self.gk_image, self.gk_rect)
 
@@ -101,8 +85,6 @@ class Labyrinth:
     def road(self, x, y):
 
         """ init tile walls for the map """
-        # self.wall_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        # self.wall_image.fill(BLACK)
         self.road_image = load_img('road.png')
         self.road_rect = self.road_image.get_rect()
         self.road_rect.x = x * TILE_SIZE
@@ -112,36 +94,31 @@ class Labyrinth:
     def object(self):
 
         """ init the objects with a dictionary """
-        self.obj_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        self.obj_image.fill(VIOLET)
+        obj_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
+        obj_image.fill(VIOLET)
         # self.obj_image = load_img(OBJ_IMG_LIST[0])
-        self.obj_rect = self.obj_image.get_rect()
-        self.obj_rect.x = TILE_SIZE * random.randint(0, 14)
-        self.obj_rect.y = TILE_SIZE * random.randint(0, 14)
-        self.obj_rect = random.choice(self.road_pos)
+        obj_rect = obj_image.get_rect()
+        obj_rect.x = TILE_SIZE * random.randint(0, 14)
+        obj_rect.y = TILE_SIZE * random.randint(0, 14)
+        obj_rect = random.choice(self.road_pos)
 
-        self.obj = {
-            'img': self.obj_image,
-            'rect': self.obj_rect,
-            'taken': False
+        obj = {
+            'img': obj_image,
+            'rect': obj_rect
         }
-        return self.obj
+        return obj
 
     def gate_keeper(self):
 
         """ init the Gate Keeper """
-        # self.gk_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        # self.gk_image.fill(RED)
         self.gk_image = load_img('murdoc.png')
         self.gk_rect = self.gk_image.get_rect()
-        self.gk_rect.x = 12 * TILE_SIZE
+        self.gk_rect.x = 14 * TILE_SIZE
         self.gk_rect.y = 11 * TILE_SIZE
 
     def macgyver(self):
 
         """ init MacGyver """
-        # self.mg_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        # self.mg_image.fill(BLUE)
         self.mg_image = load_img('macgyver.png')
         self.mg_rect = self.mg_image.get_rect()
         self.mg_rect.x = 0 * TILE_SIZE
@@ -177,12 +154,15 @@ class Labyrinth:
 
         """ check if MacGyver is collecting objects """
         test_pos = (x, y)
-        for self.obj in self.objects:
-            if self.obj['rect'] == test_pos:
-                self.obj['taken'] = True
-                self.obj['img'] = load_img('road.png')
-                print("Un objet à été ramassé")
-            if self.obj['taken'] is False:
+        for obj in self.objects:
+            if obj['rect'] == test_pos:
+                snd_effect = load_snd('SUCCESS PICKUP.ogg')
+                snd_effect.play()
+                self.inventory += 1
+                self.objects.remove(dict(obj))
+                # print(self.inventory)
+                # print("Un objet à été ramassé")
+            if not self.inventory == 3:
                 self.game_over = True
             else:
                 self.game_over = False
@@ -202,27 +182,13 @@ class Labyrinth:
         """ check MacGyver position to detect victory """
         if self.mg_rect.x == self.gk_rect.x and self.mg_rect.y == self.gk_rect.y:
             if self.game_over is True:
-                print("Game Over!")
-                self.objects = [self.object() for i in range(3)]
-                i = -1
-                for self.obj in self.objects:
-                    i += 1
-                    self.obj['img'] = load_img(OBJ_IMG_LIST[i])
-                self.macgyver()
+                snd_effect = load_snd('NEGATIVE Failure.ogg')
+                snd_effect.play()
             else:
-                print("Gagné!")
-                self.objects = [self.object() for i in range(3)]
-                i = -1
-                for self.obj in self.objects:
-                    i += 1
-                    self.obj['img'] = load_img(OBJ_IMG_LIST[i])
-                self.macgyver()
-
-
-
-
-
-
-
+                snd_effect = load_snd('EXPLOSION.ogg')
+                snd_effect.play()
+            return True
+        else:
+            return False
 
 

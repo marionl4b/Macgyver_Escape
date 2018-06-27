@@ -10,14 +10,21 @@ def load_img(filename):
 
 
 def load_snd(filename):
-    pass
+    snd = pygame.mixer.Sound(path.join(SND_DIR, filename))
+    return snd
 
 
-def load_text(txt, font, color, y):
-    text = font.render(txt, True, color)
-    text_pos = text.get_rect()
-    text_pos.centerx = WIDTH / 2
-    text_pos.centery = y
+def load_music(filename):
+    music = pygame.mixer.music.load(path.join(SND_DIR, filename))
+    return music
+
+
+def draw_text(text, font, size, color, x, y):
+    font = pygame.font.Font(font, size)
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = (x, y)
+    SCREEN.blit(text_surface, text_rect)
 
 
 # PATH DIRECTORY
@@ -25,6 +32,7 @@ DIR_NAME = path.dirname('__FILE__')
 ASSETS_DIR = path.join(DIR_NAME, 'assets')
 IMG_DIR = path.join(ASSETS_DIR, 'img')
 FONT_DIR = path.join(ASSETS_DIR, 'fonts')
+SND_DIR = path.join(ASSETS_DIR, 'sounds')
 
 # Window
 WIDTH = 480
@@ -32,6 +40,7 @@ HEIGHT = 480
 FPS = 30
 TITLE = "MAcGyver Escape"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+RUNNING = True
 
 # Fonts
 FONT = path.join(FONT_DIR, 'Comic Sans MS.ttf')
