@@ -15,7 +15,6 @@ class GameWrapper:
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
         self.running = True
-        self.waiting = True
         self.game_over = False
 
         # init functions of labyrinth
@@ -71,14 +70,15 @@ class GameWrapper:
         draw_text("Press Arrows to move", FONT, 18, WHITE, WIDTH / 2, 400)
         draw_text("Press Any key to start", FONT, 18, WHITE, WIDTH / 2, 420)
         pygame.display.flip()
-        while self.waiting:
+        wait_start = True
+        while wait_start:
             self.clock.tick(FPS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.waiting = False
+                    wait_start = False
                     self.running = False
                 elif event.type == pygame.KEYUP:
-                    self.waiting = False
+                    wait_start = False
                     self.game_loop()
 
     def game_over_screen(self):

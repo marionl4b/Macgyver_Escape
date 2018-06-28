@@ -6,18 +6,17 @@ class Labyrinth:
     def __init__(self):
         self.screen = SCREEN
         self.grid = []
-
-        self.game_over = False
-
         self.walls_pos = []
         self.road_pos = []
         self.objects = []
         self.inventory = 0
+        self.game_over = False
+
         self.load_map()
         self.set_new_map()
 
     def load_map(self):
-        """ load the map file and objects"""
+        """ load the map file and store wall and road positions"""
 
         # open and read the map
         with open('map.txt', 'r') as file:
@@ -29,35 +28,36 @@ class Labyrinth:
         for row, tiles in enumerate(self.grid):
             for col, tile in enumerate(tiles):
                 if tile == ROAD:  # add walls by cols and rows
-                    self.road(col, row)
-                    self.road_pos.append(self.road_rect)
+                    road_image, road_rect = self.set_road(col, row, 'road.png')
+                    self.road_pos.append(road_rect)
                 if tile == WALL:  # add walls by cols and rows
-                    self.wall(col, row)
-                    self.walls_pos.append(self.wall_rect)
+                    wall_image, wall_rect = self.set_wall(col, row, 'wall.png')
+                    self.walls_pos.append(wall_rect)
 
     def set_new_map(self):
-        # load objects randomly on road tile then load MacGyver and the Gate Keeper
-        self.objects = [self.object() for i in range(3)]
+
+        """ load 3 objects randomly on road tile then load MacGyver and the Gate Keeper """
+        self.objects = [self.set_object() for i in range(3)]
         i = -1
         for obj in self.objects:
             i += 1
             obj['img'] = load_img(OBJ_IMG_LIST[i])
-        self.macgyver()
-        self.gate_keeper()
+        self.set_macgyver(0, 2, 'macgyver.png')
+        self.set_gate_keeper(14, 11, 'murdoc.png')
         self.inventory = 0
 
     def show_map(self):
 
-        """ init the map for display in GameWrapper """
+        """ set the map images for display in GameWrapper """
         # show walls and roads loaded by row and col
         for row, tiles in enumerate(self.grid):
             for col, tile in enumerate(tiles):
                 if tile == WALL:
-                    self.wall(col, row)
-                    self.screen.blit(self.wall_image, self.wall_rect)
+                    wall_image, wall_rect = self.set_wall(col, row, 'wall.png')
+                    self.screen.blit(wall_image, wall_rect)
                 if tile == ROAD:
-                    self.road(col, row)
-                    self.screen.blit(self.road_image, self.road_rect)
+                    road_image, road_rect = self.set_road(col, row, 'road.png')
+                    self.screen.blit(road_image, road_rect)
 
         # show the 3 collectibles objects MacGyver and the Gate Keeper
         for obj in self.objects:
@@ -71,32 +71,30 @@ class Labyrinth:
         for y in range(0, HEIGHT, TILE_SIZE):
             pygame.draw.line(self.screen, WHITE, (0, y), (WIDTH, y))
 
-    def wall(self, x, y):
+    def set_wall(self, x, y, filename):
 
-        """ init tile walls for the map """
-        # self.wall_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        # self.wall_image.fill(BLACK)
-        self.wall_image = load_img('wall.png')
-        self.wall_rect = self.wall_image.get_rect()
-        self.wall_rect.x = x * TILE_SIZE
-        self.wall_rect.y = y * TILE_SIZE
-        self.wall_rect = (self.wall_rect.x, self.wall_rect.y)
+        """ set tile walls for the map """
+        wall_image = load_img(filename)
+        wall_rect = wall_image.get_rect()
+        wall_rect.x = x * TILE_SIZE
+        wall_rect.y = y * TILE_SIZE
+        wall_rect = (wall_rect.x, wall_rect.y)
+        return wall_image, wall_rect
 
-    def road(self, x, y):
+    def set_road(self, x, y, filename):
 
-        """ init tile walls for the map """
-        self.road_image = load_img('road.png')
-        self.road_rect = self.road_image.get_rect()
-        self.road_rect.x = x * TILE_SIZE
-        self.road_rect.y = y * TILE_SIZE
-        self.road_rect = (self.road_rect.x, self.road_rect.y)
+        """ set tile walls for the map """
+        road_image = load_img(filename)
+        road_rect = road_image.get_rect()
+        road_rect.x = x * TILE_SIZE
+        road_rect.y = y * TILE_SIZE
+        road_rect = (road_rect.x, road_rect.y)
+        return road_image, road_rect
 
-    def object(self):
+    def set_object(self):
 
-        """ init the objects with a dictionary """
-        obj_image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        obj_image.fill(VIOLET)
-        # self.obj_image = load_img(OBJ_IMG_LIST[0])
+        """ construct the objects with a dictionary """
+        obj_image = load_img(OBJ_IMG_LIST[0])
         obj_rect = obj_image.get_rect()
         obj_rect.x = TILE_SIZE * random.randint(0, 14)
         obj_rect.y = TILE_SIZE * random.randint(0, 14)
@@ -108,21 +106,21 @@ class Labyrinth:
         }
         return obj
 
-    def gate_keeper(self):
+    def set_gate_keeper(self, x, y, filename):
 
-        """ init the Gate Keeper """
-        self.gk_image = load_img('murdoc.png')
+        """ set the Gate Keeper """
+        self.gk_image = load_img(filename)
         self.gk_rect = self.gk_image.get_rect()
-        self.gk_rect.x = 14 * TILE_SIZE
-        self.gk_rect.y = 11 * TILE_SIZE
+        self.gk_rect.x = x * TILE_SIZE
+        self.gk_rect.y = y * TILE_SIZE
 
-    def macgyver(self):
+    def set_macgyver(self, x, y, filename):
 
-        """ init MacGyver """
-        self.mg_image = load_img('macgyver.png')
+        """ set MacGyver """
+        self.mg_image = load_img(filename)
         self.mg_rect = self.mg_image.get_rect()
-        self.mg_rect.x = 0 * TILE_SIZE
-        self.mg_rect.y = 2 * TILE_SIZE
+        self.mg_rect.x = x * TILE_SIZE
+        self.mg_rect.y = y * TILE_SIZE
 
     def get_new_coords(self, key):
 
