@@ -13,7 +13,7 @@ class Labyrinth:
         self.game_over = False
 
         self.load_map()
-        self.set_new_map()
+        self.set_new_board_game()
 
     def load_map(self):
         """ load the map file and store wall and road positions"""
@@ -34,7 +34,7 @@ class Labyrinth:
                     wall_image, wall_rect = self.set_wall(col, row, 'wall.png')
                     self.walls_pos.append(wall_rect)
 
-    def set_new_map(self):
+    def set_new_board_game(self):
 
         """ load 3 objects randomly on road tile then load MacGyver and the Gate Keeper """
         self.objects = [self.set_object() for i in range(3)]
@@ -46,7 +46,7 @@ class Labyrinth:
         self.set_gate_keeper(14, 11, 'murdoc.png')
         self.inventory = 0
 
-    def show_map(self):
+    def show_board_game(self):
 
         """ set the map images for display in GameWrapper """
         # show walls and roads loaded by row and col
@@ -148,7 +148,7 @@ class Labyrinth:
         else:
             return False
 
-    def check_objects(self, x, y):
+    def check_inventory(self, x, y):
 
         """ check if MacGyver is collecting objects """
         test_pos = (x, y)
@@ -156,6 +156,7 @@ class Labyrinth:
             if obj['rect'] == test_pos:
                 snd_effect = load_snd('SUCCESS PICKUP.ogg')
                 snd_effect.play()
+                snd_effect.set_volume(0.5)
                 self.inventory += 1
                 self.objects.remove(dict(obj))
                 # print(self.inventory)
@@ -169,7 +170,7 @@ class Labyrinth:
 
         """ Move MacGyver if all is clear and declare which object is collected """
         new_x, new_y = self.get_new_coords(key)
-        self.check_objects(new_x, new_y)
+        self.check_inventory(new_x, new_y)
         if self.check_coords(new_x, new_y) is True:
             self.mg_rect.x = new_x
             self.mg_rect.y = new_y
@@ -182,9 +183,11 @@ class Labyrinth:
             if self.game_over is True:
                 snd_effect = load_snd('NEGATIVE Failure.ogg')
                 snd_effect.play()
+                snd_effect.set_volume(0.5)
             else:
                 snd_effect = load_snd('EXPLOSION.ogg')
                 snd_effect.play()
+                snd_effect.set_volume(0.5)
             return True
         else:
             return False

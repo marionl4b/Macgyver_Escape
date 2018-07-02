@@ -21,10 +21,11 @@ class GameWrapper:
         self.labyrinth = Labyrinth()
 
     def game_loop(self):
+        """ run the game """
         while self.running:
             self.clock.tick(FPS)
             while self.game_over:
-                self.game_over_screen()
+                self.end_game_screen()
             self.events()
             self.update()
             self.draw()
@@ -56,10 +57,12 @@ class GameWrapper:
         """ render graphics """
 
         self.screen.fill(GREEN)
-        self.labyrinth.show_map()
+        self.labyrinth.show_board_game()
         pygame.display.flip()
 
     def start_screen(self):
+        """ screen displayed once at the begining of the game"""
+
         load_music('8-Bit Tunes MacGyver Theme.mp3')
         pygame.mixer.music.play(loops=-1)
         start_bg = load_img('start_bg.png')
@@ -81,7 +84,8 @@ class GameWrapper:
                     wait_start = False
                     self.game_loop()
 
-    def game_over_screen(self):
+    def end_game_screen(self):
+        """ display victory or game over screen and let the player restart a game"""
 
         if self.labyrinth.game_over:
             self.screen.fill(ORANGE)
@@ -109,7 +113,7 @@ class GameWrapper:
                 self.running = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_y:
                 self.game_over = False
-                self.labyrinth.set_new_map()
+                self.labyrinth.set_new_board_game()
 
 
 def main():

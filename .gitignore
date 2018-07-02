@@ -1,5 +1,4 @@
 venv/*
 .pycache
 .idea/
-correction.py
 archive/*

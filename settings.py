@@ -16,6 +16,7 @@ def load_snd(filename):
 
 def load_music(filename):
     music = pygame.mixer.music.load(path.join(SND_DIR, filename))
+    pygame.mixer.music.set_volume(0.3)
     return music
 
 
